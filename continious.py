@@ -1,11 +1,13 @@
 from variable import *
-
+from operator import itemgetter
 
 class ContiniousVariable(Variable):
     def __init__(self, datalist):
         super().__init__(datalist)
 
-        self.range = max(self.data_set) - min(self.data_set)
+        self.range = max(self.data_set,key=itemgetter(0))[0] - min(self.data_set,key=itemgetter(0))[0]
+
+        self.intervals = self.get_intervals()
 
         self.count_expectation()
         self.count_variance()
@@ -25,18 +27,16 @@ class ContiniousVariable(Variable):
     def get_intervals(self):
         intervals = []
         delta = self.get_delta()
-        left = min(self.data_set)
+        left = min(self.data_set, key=itemgetter(0))[0]
 
-        i = 0
         frequency_sum = 0
-        for value in self.data_set:
+        for (value, frequency) in self.data_set:
             if value > left + delta:
                 intervals.append((left, left + delta, frequency_sum))
                 left += delta
                 frequency_sum = 0
 
-            frequency_sum += self.frequencies[i]
-            i += 1
+            frequency_sum += frequency
 
         intervals.append((left, left+delta, frequency_sum))
         return intervals
@@ -44,18 +44,16 @@ class ContiniousVariable(Variable):
 
     # СРЕДНЕВЗВЕШЕННОЕ!!!
     def count_expectation(self):
-        intervals = self.get_intervals()
 
-        for (left, right, frequency) in intervals:
+        for (left, right, frequency) in self.intervals:
             mid = (left + right) / 2
             self.expectation += mid * frequency
 
         self.expectation /= self.datalist_len
 
     def count_variance(self):
-        intervals = self.get_intervals()
 
-        for (left, right, frequency) in intervals:
+        for (left, right, frequency) in self.intervals:
             mid = (left + right) / 2
             self.variance += ((mid - self.expectation)**2) * frequency
 

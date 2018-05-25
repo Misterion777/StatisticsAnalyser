@@ -4,6 +4,10 @@ class Group:
     def __init__(self):
         self.values = []
 
+        self.left = 0
+        self.right = 0
+
+        self.middle = 0
         self.average = 0
         self.frequency_sum = 0
         self.variance = 0
@@ -22,7 +26,13 @@ class Group:
             self.variance += ((value - self.average) ** 2) * frequency
         self.variance /= self.frequency_sum
 
-    def set_characteristics(self):
+    def __set_middle(self):
+        self.middle = (self.left + self.right) / 2
+
+    def set_characteristics(self, left, right):
+        self.left = left
+        self.right = right
+        self.__set_middle()
         self.__set_frequency_sum()
         self.__set_average()
         self.__set_variance()

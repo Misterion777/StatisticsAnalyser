@@ -1,6 +1,11 @@
+import matplotlib.pyplot as plt
+import numpy as np
 from variable import *
 from operator import itemgetter
 from group import *
+import distributions as dists
+import math_utils as mu
+import scipy.stats
 
 
 class ContiniousVariable(Variable):
@@ -14,12 +19,30 @@ class ContiniousVariable(Variable):
         self.count_expectation()
         self.count_variance()
         self.count_deviation()
+        self.fixed_deviation = math.sqrt(self.get_fixed_variance())
 
-        print(self.count_ratio())
+        norm = dists.Normal(self.expectation, self.fixed_deviation)
+        expon = dists.Exponential(self.expectation)
+        uniform = dists.Uniform(self.expectation, self.standart_deviation)
+
+        dists_to_check = [norm, expon, uniform]
+
+        for dist in dists_to_check:
+            if mu.pearson_test(dist, self.groups, self.datalist_len):
+                p_result = ''
+            else:
+                p_result = 'no'
+            if mu.romanovsky_test(dist, self.groups, self.datalist_len):
+                r_result = ''
+            else:
+                r_result = 'no'
+            print("According to Pearson, current dataset has {} {} distribution".format(p_result,str(dist)))
+            print("According to Romanovsky, current dataset has {} {} distribution".format(r_result, str(dist)))
 
         print(self.expectation)
         print(self.variance)
         print(self.standart_deviation)
+        self.plot_data()
 
 
     def get_delta(self):
@@ -36,7 +59,7 @@ class ContiniousVariable(Variable):
         for (value, frequency) in self.data_set:
 
             if value > left + delta:
-                group.set_characteristics()
+                group.set_characteristics(left, left + delta)
                 intervals.append(group)
 
                 group = Group()
@@ -44,7 +67,7 @@ class ContiniousVariable(Variable):
 
             group.add((value, frequency))
 
-        group.set_characteristics()
+        group.set_characteristics(left, left + delta)
         intervals.append(group)
 
         return intervals
@@ -60,8 +83,8 @@ class ContiniousVariable(Variable):
 
     # Общая средняя
     def count_expectation(self):
-        for (value, frequency) in self.data_set:
-            self.expectation += value * frequency
+        for group in self.groups:
+            self.expectation += group.middle * group.frequency_sum
 
         self.expectation /= self.datalist_len
 
@@ -84,5 +107,17 @@ class ContiniousVariable(Variable):
 
     def count_ratio(self):
         return self.get_between_groups_variance() / self.variance
+
+
+    def get_fixed_variance(self):
+        return self.variance * self.datalist_len / (self.datalist_len - 1)
+
+
+    def plot_data(self):
+        plt.hist(self.datalist, density=True)
+        plt.show()
+
+
+
 
 

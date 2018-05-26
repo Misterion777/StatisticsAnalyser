@@ -1,4 +1,7 @@
 from variable import *
+import distributions as dists
+import math_utils as mu
+import matplotlib.pyplot as plt
 
 
 class DiscreteVariable(Variable):
@@ -8,6 +11,27 @@ class DiscreteVariable(Variable):
         self.count_expectation()
         self.count_variance()
         self.count_deviation()
+
+        self.plot_data()
+
+        geom = dists.Geometric(self.expectation, self.variance)
+        binom = dists.Binomial(self.expectation, self.datalist_len)
+        pois = dists.Poisson(self.expectation)
+
+        dists_to_check = [geom, binom, pois]
+
+        for dist in dists_to_check:
+            if mu.pearson_test(dist, self.data_set, self.datalist_len):
+                p_result = ''
+            else:
+                p_result = 'no'
+            if mu.romanovsky_test(dist, self.data_set, self.datalist_len):
+                r_result = ''
+            else:
+                r_result = 'no'
+            print("According to Pearson, current dataset has {} {} distribution".format(p_result, str(dist)))
+            print("According to Romanovsky, current dataset has {} {} distribution".format(r_result, str(dist)))
+
 
         print(self.expectation)
         print(self.variance)
@@ -26,3 +50,13 @@ class DiscreteVariable(Variable):
 
         self.variance /= self.datalist_len
 
+
+    def plot_data(self):
+        x = []
+        y = []
+        for value, freq in self.data_set:
+            x.append(value)
+            y.append(freq)
+
+        plt.plot(x, y)
+        plt.show()

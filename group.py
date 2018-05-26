@@ -37,3 +37,6 @@ class Group:
         self.__set_average()
         self.__set_variance()
 
+
+    def print_data(self):
+        print("{}-{}, {}, {}".format(self.left,self.right,self.middle,self.frequency_sum))

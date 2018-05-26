@@ -7,6 +7,7 @@ class Variable:
 
         self.data_set = []
         self.frequencies = []
+        self.datalist = datalist
         self.datalist_len = len(datalist)
         self.set_data_set(datalist)
 
@@ -17,7 +18,6 @@ class Variable:
     def set_data_set(self, data_list):
         self.data_set = [(key, len(list(group))) for key, group in groupby(data_list)]
 
-    # СРЕДНЕВЗВЕШЕННОЕ!!!
     def count_expectation(self):
         pass
 

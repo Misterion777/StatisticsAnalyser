@@ -9,8 +9,6 @@ def main():
     datalist = pandas.read_csv("final_data.csv", header=0, usecols=[curr_column]).values.tolist()
     datalist = format_list(datalist)
 
-    datalist.sort()
-
     cv1 = ContiniousVariable(datalist)
     print("---------------")
     cv2 = DiscreteVariable(datalist)

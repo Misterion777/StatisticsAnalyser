@@ -15,14 +15,28 @@ def laplace_funtion(x):
     return scipy.stats.norm.cdf(x) - 0.5
 
 
-def romanovsky_test(distribution, groups, n):
-    chi = chi_square(distribution, groups, n)
+def yastremsky_test(distribution, values, n):
+    chi = chi_square(distribution, values, n)
 
-    degrees_of_freedom = len(groups) - distribution.parameters_amount - 1
+    degrees_of_freedom = len(values) - distribution.parameters_amount - 1
 
-    r = abs(chi - degrees_of_freedom) / math.sqrt(2) * degrees_of_freedom
+    r = abs(chi - degrees_of_freedom) / math.sqrt(2 * len(values) + 2.4)
 
-    print("{} < 3".format(r))
+    print(str(distribution))
+    print("R = {}".format(r))
+
+    return r < 3
+
+def romanovsky_test(distribution, values, n):
+    chi = chi_square(distribution, values, n)
+
+    degrees_of_freedom = len(values) - distribution.parameters_amount - 1
+
+    r = abs(chi - degrees_of_freedom) / math.sqrt(2 * degrees_of_freedom)
+
+    print(str(distribution))
+    print("R = {}".format(r))
+
     return r < 3
 
 
@@ -33,16 +47,16 @@ def pearson_test(distribution, values, n):
 
     from_table = scipy.stats.chi2.isf(ALPHA, degrees_of_freedom)
 
-    print("{} < {}".format(chi, from_table))
+    print(str(distribution))
+    print("Хи квадрат наблюдаемое = {}".format(chi))
+    print("Хи квадрат теоретическое = {}".format(from_table))
     return chi < from_table
 
 
 def chi_square(distribution, values, n):
-    if str(distribution) == 'binomial':
+    if str(distribution) in ['пуассоновское','геометрическое', 'биномиальное']:
         return __discrete_chi(values, n, distribution)
-    if str(distribution) in ['geometric', 'poisson']:
-        return __iterative_chi(values, n, distribution)
-    if str(distribution) == 'uniform':
+    if str(distribution) == 'равномерное':
         return __uniform_chi(distribution, values, n)
     else:
         return __other__chi([(group.left, group.right, group.frequency_sum) for group in values], n, distribution)
@@ -54,7 +68,10 @@ def __iterative_chi(values, n, distribution):
         theoretical_frequency = n * \
                                 distribution.get_probability(i)
 
-        result += (f - theoretical_frequency) ** 2 / theoretical_frequency
+        try:
+            result += (f - theoretical_frequency) ** 2 / theoretical_frequency
+        except RuntimeWarning:
+            result += 0
         i += 1
     return result
 

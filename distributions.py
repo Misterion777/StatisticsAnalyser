@@ -1,19 +1,24 @@
 from math_utils import *
-
+import scipy.stats
+import matplotlib.pyplot as plt
+import numpy as np
 
 class Distribution:
-    def __init__(self, average, deviation=None):
+    def __init__(self, datalist, average, deviation=None):
         self.average = average
         self.deviation = deviation
+        self.datalist =datalist
         if deviation is not None:
             self.parameters_amount = 2
         else:
             self.parameters_amount = 1
 
+    def plot_data(self):
+        pass
 
 class Normal(Distribution):
-    def __init__(self, average, deviation):
-        super().__init__(average, deviation)
+    def __init__(self, datalist, average, deviation):
+        super().__init__(datalist, average, deviation)
 
     def get_probability(self, x1, x2=None, h=None):
         if h is not None:
@@ -24,25 +29,41 @@ class Normal(Distribution):
         else:
             raise Exception("Invalid input arguments")
 
+    def plot_data(self):
+        x = np.linspace(min(self.datalist), max(self.datalist), len(self.datalist))
+        dist = scipy.stats.norm
+        loc_param, scale_param = dist.fit(self.datalist)
+        fitted_dist = dist(loc=loc_param, scale=scale_param)
+
+        plt.plot(x, fitted_dist.pdf(x), label='Нормальное')
+
     def __str__(self):
-        return "normal"
+        return "нормальное"
 
 
 class Exponential(Distribution):
-    def __init__(self, average):
-        super().__init__(average)
+    def __init__(self, datalist, average):
+        super().__init__(datalist, average)
         self.param = 1 / self.average
 
     def get_probability(self, x1, x2):
         return math.exp(-1 * self.param * x1) - math.exp(-1 * self.param * x2)
 
+    def plot_data(self):
+        x = np.linspace(min(self.datalist), max(self.datalist), len(self.datalist))
+        dist = scipy.stats.expon
+        loc_param, scale_param = dist.fit(self.datalist)
+        fitted_dist = dist(loc=loc_param, scale=scale_param)
+
+        plt.plot(x, fitted_dist.pdf(x), label='Экспоненциальное')
+
     def __str__(self):
-        return "exponential"
+        return "экспоненциальное"
 
 
 class Uniform(Distribution):
-    def __init__(self, average, deviation):
-        super().__init__(average,deviation)
+    def __init__(self, datalist, average, deviation):
+        super().__init__(datalist, average,deviation)
 
         self.a = self.average - math.sqrt(3 * self.deviation)
         self.b = self.average + math.sqrt(3 * self.deviation)
@@ -63,46 +84,66 @@ class Uniform(Distribution):
         else:
             raise Exception("Invalid input arguments")
 
+
+    def plot_data(self):
+        x = np.linspace(min(self.datalist), max(self.datalist), len(self.datalist))
+        dist = scipy.stats.uniform
+        loc_param, scale_param = dist.fit(self.datalist)
+        fitted_dist = dist(loc=loc_param, scale=scale_param)
+
+        plt.plot(x, fitted_dist.pdf(x), label='Равномерное')
+
     def __str__(self):
-        return "uniform"
+        return "равномерное"
 
 
 class Binomial(Distribution):
-    def __init__(self, average, n):
-        super().__init__(average)
+    def __init__(self, datalist, average, n):
+        super().__init__(datalist, average)
         self.n = n
         self.parameters_amount = 2
         self.p = (self.average / self.n)
 
     def get_probability(self, x):
-        c = math.factorial(self.n) / (math.factorial(x) * math.factorial(self.n - x))
-        return c * (self.p ** x) * ((1 - self.p) ** (self.n - x))
+        return scipy.stats.binom.pmf(x,self.n,self.p)
+
+    def plot_data(self):
+        x = np.arange(min(self.datalist), max(self.datalist))
+        plt.plot(x, scipy.stats.binom.pmf(x, self.n, self.p), label='Бернулли')
 
     def __str__(self):
-        return "binomial"
+        return "биномиальное"
 
 
 class Geometric(Distribution):
-    def __init__(self, average, variance):
-        super().__init__(average)
-        self.variance = variance
-        self.p = average / variance
+    def __init__(self, datalist, average):
+        super().__init__(datalist, average)
+        self.p = 1 / (self.average + 1)
 
-    # TODO CHECK X!!!!!!
-    def get_probability(self, i):
-        return self.p * (1 - self.p) ** i
+
+    def plot_data(self):
+        x = np.arange(min(self.datalist), max(self.datalist))
+        plt.plot(x, scipy.stats.geom.pmf(x, self.p), label='Геометрическое')
+
+
+    def get_probability(self, x):
+        return scipy.stats.geom.pmf(x, self.p)
 
     def __str__(self):
-        return "geometric"
+        return "геометрическое"
 
 
 class Poisson(Distribution):
-    def __init__(self, average):
-        super().__init__(average)
+    def __init__(self, datalist, average):
+        super().__init__(datalist, average)
+
+    def plot_data(self):
+        x = np.arange(min(self.datalist), max(self.datalist))
+        plt.plot(x, scipy.stats.poisson.pmf(x, self.average), label='Пуассон')
 
 
     def get_probability(self, i):
-        return self.average ** i / math.factorial(i) * math.exp(-1 * self.average)
+        return scipy.stats.poisson.pmf(i, self.average)
 
     def __str__(self):
-        return "poisson"
+        return "пуассоновское"

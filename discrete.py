@@ -2,6 +2,8 @@ from variable import *
 import distributions as dists
 import math_utils as mu
 import matplotlib.pyplot as plt
+import scipy.stats
+import numpy as np
 
 
 class DiscreteVariable(Variable):
@@ -12,30 +14,25 @@ class DiscreteVariable(Variable):
         self.count_variance()
         self.count_deviation()
 
-        self.plot_data()
+        geom = dists.Geometric(self.datalist, self.expectation)
+        binom = dists.Binomial(self.datalist, self.expectation, self.datalist_len)
+        pois = dists.Poisson(self.datalist, self.expectation)
 
-        geom = dists.Geometric(self.expectation, self.variance)
-        binom = dists.Binomial(self.expectation, self.datalist_len)
-        pois = dists.Poisson(self.expectation)
+        dists_to_check = [pois, geom, binom]
 
-        dists_to_check = [geom, binom, pois]
+        self.plot_polygon()
+        print("Оценка мат. ожидания = {}".format(self.expectation))
+        print("Дисперсия = {}".format(self.variance))
+        print("Среднеквадратичное отклонение = {}".format(self.standart_deviation))
 
         for dist in dists_to_check:
-            if mu.pearson_test(dist, self.data_set, self.datalist_len):
-                p_result = ''
-            else:
-                p_result = 'no'
-            if mu.romanovsky_test(dist, self.data_set, self.datalist_len):
-                r_result = ''
-            else:
-                r_result = 'no'
-            print("According to Pearson, current dataset has {} {} distribution".format(p_result, str(dist)))
-            print("According to Romanovsky, current dataset has {} {} distribution".format(r_result, str(dist)))
+            dist.plot_data()
+            mu.pearson_test(dist, self.data_set, self.datalist_len)
+            mu.yastremsky_test(dist, self.data_set, self.datalist_len)
 
+        plt.legend(loc='best')
+        plt.show()
 
-        print(self.expectation)
-        print(self.variance)
-        print(self.standart_deviation)
 
     # СРЕДНЕВЗВЕШЕННОЕ!!!
     def count_expectation(self):
@@ -51,12 +48,11 @@ class DiscreteVariable(Variable):
         self.variance /= self.datalist_len
 
 
-    def plot_data(self):
+    def plot_polygon(self):
         x = []
         y = []
         for value, freq in self.data_set:
             x.append(value)
-            y.append(freq)
+            y.append(freq / self.datalist_len)
 
         plt.plot(x, y)
-        plt.show()

@@ -4,14 +4,46 @@ from parser import *
 
 
 def main():
-    curr_column = 0
+    data = 'dasha_final.csv'
 
-    datalist = pandas.read_csv("final_data.csv", header=0, usecols=[curr_column]).values.tolist()
+    # DASHA
+
+    datalist = pandas.read_csv(data, header=None, usecols=[0], sep='\t').values.tolist()
     datalist = format_list(datalist)
+    ContiniousVariable(datalist)
 
-    cv1 = ContiniousVariable(datalist)
-    print("---------------")
-    cv2 = DiscreteVariable(datalist)
+
+    datalist = pandas.read_csv(data, header=None, usecols=[1], sep='\t').values.tolist()
+    datalist = format_list(datalist)
+    ContiniousVariable(datalist)
+
+
+    datalist = pandas.read_csv(data, header=None, usecols=[2], sep='\t').values.tolist()
+    datalist = format_list(datalist)
+    DiscreteVariable(datalist)
+
+
+    # FINAL
+
+
+    #
+    # datalist = pandas.read_csv("Data/Concrete_data.csv", header=0, usecols=[0]).values.tolist()
+    # datalist = format_list(datalist)
+    # ContiniousVariable(datalist)
+    #
+    # print("---------------")
+    #
+    # datalist = pandas.read_csv("Data/Concrete_data.csv", header=0, usecols=[1]).values.tolist()
+    # datalist = format_list(datalist)
+    # DiscreteVariable(datalist)
+    #
+    # print("---------------")
+    #
+    # datalist = pandas.read_csv("Data/Concrete_data.csv", header=0, usecols=[2]).values.tolist()
+    # datalist = format_list(datalist)
+    # ContiniousVariable(datalist)
+    #
+    # print("---------------")
 
 
 if __name__ == '__main__':

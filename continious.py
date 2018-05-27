@@ -6,7 +6,7 @@ from group import *
 import distributions as dists
 import math_utils as mu
 import scipy.stats
-
+import parser
 
 class ContiniousVariable(Variable):
     def __init__(self, datalist):
@@ -21,29 +21,25 @@ class ContiniousVariable(Variable):
         self.count_deviation()
         self.fixed_deviation = math.sqrt(self.get_fixed_variance())
 
-        norm = dists.Normal(self.expectation, self.fixed_deviation)
-        expon = dists.Exponential(self.expectation)
-        uniform = dists.Uniform(self.expectation, self.standart_deviation)
+        norm = dists.Normal(self.datalist, self.expectation, self.fixed_deviation)
+        expon = dists.Exponential(self.datalist, self.expectation)
+        uniform = dists.Uniform(self.datalist, self.expectation, self.standart_deviation)
+
+        print("Оценка мат. ожидания = {}".format(self.expectation))
+        print("Дисперсия = {}".format(self.variance))
+        print("Среднеквадратичное отклонение = {}".format(self.standart_deviation))
+
+        self.plot_histogram()
 
         dists_to_check = [norm, expon, uniform]
 
         for dist in dists_to_check:
-            if mu.pearson_test(dist, self.groups, self.datalist_len):
-                p_result = ''
-            else:
-                p_result = 'no'
-            if mu.romanovsky_test(dist, self.groups, self.datalist_len):
-                r_result = ''
-            else:
-                r_result = 'no'
-            print("According to Pearson, current dataset has {} {} distribution".format(p_result,str(dist)))
-            print("According to Romanovsky, current dataset has {} {} distribution".format(r_result, str(dist)))
+            dist.plot_data()
+            mu.pearson_test(dist, self.groups, self.datalist_len)
+            mu.yastremsky_test(dist, self.groups, self.datalist_len)
 
-        print(self.expectation)
-        print(self.variance)
-        print(self.standart_deviation)
-        self.plot_data()
-
+        plt.legend(loc='best')
+        plt.show()
 
     def get_delta(self):
         STURGIS_COEFFICIENT = 3.322
@@ -78,6 +74,7 @@ class ContiniousVariable(Variable):
         result = 0
         for group in self.groups:
             result += group.variance * group.frequency_sum
+        print("Средняя из внутригрупповых дисперсий = {}".format(result / self.datalist_len))
         return result / self.datalist_len
 
 
@@ -93,7 +90,7 @@ class ContiniousVariable(Variable):
         result = 0
         for group in self.groups:
             result += (group.average - self.expectation) ** 2 * group.frequency_sum
-
+        print("Межгрупповая = {}".format(result / self.datalist_len))
         return result / self.datalist_len
 
 
@@ -103,9 +100,11 @@ class ContiniousVariable(Variable):
         average_interval_variance = self.get_average_group_variance()
 
         self.variance = between_intervals_variance + average_interval_variance
+        print("Межгрупповая дисперсия + средняя внутригрупповых = {}".format(self.variance))
 
 
     def count_ratio(self):
+        print("{}".format(self.get_between_groups_variance() / self.variance))
         return self.get_between_groups_variance() / self.variance
 
 
@@ -113,9 +112,11 @@ class ContiniousVariable(Variable):
         return self.variance * self.datalist_len / (self.datalist_len - 1)
 
 
-    def plot_data(self):
+    def plot_histogram(self):
         plt.hist(self.datalist, density=True)
-        plt.show()
+
+
+
 
 
 

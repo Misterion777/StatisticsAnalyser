@@ -19,10 +19,11 @@ def format_list(x):
     return x
 
 
-def get_discrete_data_set(data_list):
+def create_discrete_data_set(data_list,i):
     datalist = [key for key, group in groupby(data_list)]
     datafreq = [len(list(group)) for key, group in groupby(data_list)]
-    return (datalist, datafreq)
+    df = pandas.DataFrame(dict(c1=datalist, c2=datafreq))
+    df.to_csv('test_concrete_{}.csv'.format(i), header=None, index=False, sep='\t')
 
 
 def create_interval_data_set(groups):
@@ -35,25 +36,18 @@ def create_interval_data_set(groups):
         freqs.append(group.frequency_sum)
 
     df = pandas.DataFrame(dict(c1=left, c2=right, c3=freqs))
-    df.to_csv('interval_test_dasha.csv', header=None, index=False, sep='\t')
+    df.to_csv('interval_test_head.csv', header=None, index=False, sep='\t')
 
 
 def create_dataset():
-    column = 3
-    gbpaud = "Data/EURCZK.csv"
-    gbpdkk = "Data/EURUSD.csv"
-    gbpsek = "Data/EURZAR.csv"
+    col1 = pandas.read_csv("Data/Concrete_data.csv", usecols=[0]).values.tolist()
+    col1 = format_list(col1)
 
-    data = 'final_data.csv'
-    col = get_formatted_column(data, 0)
+    col2 = pandas.read_csv("Data/Concrete_data.csv", usecols=[7]).values.tolist()
+    col2 = format_list(col2)
 
+    col3 = pandas.read_csv("Data/Concrete_data.csv", usecols=[8]).values.tolist()
+    col3 = format_list(col3)
 
-
-
-    # col1 = get_formatted_column(gbpaud, column)
-    # col2 = get_formatted_column(gbpdkk, column)
-    # col3 = get_formatted_column(gbpsek, column)
-
-
-    df = pandas.DataFrame(dict(c1=datalist, g2=datafreq))
-    df.to_csv('test_dasha.csv', header=None, index=False, sep='\t')
+    df = pandas.DataFrame(dict(c1=col1, c2=col2, c3=col3))
+    df.to_csv('final.csv', header=None, index=False, sep='\t')

@@ -22,7 +22,7 @@ def yastremsky_test(distribution, values, n):
 
     r = abs(chi - degrees_of_freedom) / math.sqrt(2 * len(values) + 2.4)
 
-    print(str(distribution))
+    print("{} РАСПРЕДЕЛЕНИЕ".format(str(distribution).upper()))
     print("R = {}".format(r))
 
     return r < 3
@@ -34,7 +34,7 @@ def romanovsky_test(distribution, values, n):
 
     r = abs(chi - degrees_of_freedom) / math.sqrt(2 * degrees_of_freedom)
 
-    print(str(distribution))
+    print("{} РАСПРЕДЕЛЕНИЕ".format(str(distribution).upper()))
     print("R = {}".format(r))
 
     return r < 3
@@ -47,7 +47,7 @@ def pearson_test(distribution, values, n):
 
     from_table = scipy.stats.chi2.isf(ALPHA, degrees_of_freedom)
 
-    print(str(distribution))
+    print("{} РАСПРЕДЕЛЕНИЕ".format(str(distribution).upper()))
     print("Хи квадрат наблюдаемое = {}".format(chi))
     print("Хи квадрат теоретическое = {}".format(from_table))
     return chi < from_table

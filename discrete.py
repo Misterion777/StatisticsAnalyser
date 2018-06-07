@@ -25,9 +25,13 @@ class DiscreteVariable(Variable):
         print("Дисперсия = {}".format(self.variance))
         print("Среднеквадратичное отклонение = {}".format(self.standart_deviation))
 
+        print("---Критерий Пирсона---")
         for dist in dists_to_check:
             dist.plot_data()
             mu.pearson_test(dist, self.data_set, self.datalist_len)
+
+        print("---Критерий Ястремского---")
+        for dist in dists_to_check:
             mu.yastremsky_test(dist, self.data_set, self.datalist_len)
 
         plt.legend(loc='best')

@@ -12,9 +12,14 @@ class ContiniousVariable(Variable):
     def __init__(self, datalist):
         super().__init__(datalist)
 
+
         self.range = max(self.data_set,key=itemgetter(0))[0] - min(self.data_set,key=itemgetter(0))[0]
 
         self.groups = self.get_groups()
+
+        self.output_intervals()
+
+        print("--Основные данные--")
 
         self.count_expectation()
         self.count_variance()
@@ -33,13 +38,24 @@ class ContiniousVariable(Variable):
 
         dists_to_check = [norm, expon, uniform]
 
+        print("---Критерий Пирсона---")
         for dist in dists_to_check:
             dist.plot_data()
             mu.pearson_test(dist, self.groups, self.datalist_len)
+
+        print("---Критерий Ястремского---")
+        for dist in dists_to_check:
             mu.yastremsky_test(dist, self.groups, self.datalist_len)
 
         plt.legend(loc='best')
         plt.show()
+
+    def output_intervals(self):
+        print("--Интервалы--")
+        print("Л. граница -- Пр. граница -- Сумма частот")
+        for group in self.groups:
+            print("{} -- {} -- {}".format(group.left, group.right, group.frequency_sum))
+
 
     def get_delta(self):
         STURGIS_COEFFICIENT = 3.322
@@ -90,7 +106,7 @@ class ContiniousVariable(Variable):
         result = 0
         for group in self.groups:
             result += (group.average - self.expectation) ** 2 * group.frequency_sum
-        print("Межгрупповая = {}".format(result / self.datalist_len))
+        print("Межгрупповая дисперсия = {}".format(result / self.datalist_len))
         return result / self.datalist_len
 
 

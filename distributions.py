@@ -3,6 +3,7 @@ import scipy.stats
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 class Distribution:
     def __init__(self, datalist, average, deviation=None):
         self.average = average
